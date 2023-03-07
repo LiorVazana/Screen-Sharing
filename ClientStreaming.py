@@ -21,7 +21,7 @@ class ClientStreaming:
         self.__chunk_size = 4096
 
     def stream(self) -> None:
-        self.establish_p2p_connection('Sharing')
+        self.establish_p2p_connection()
 
         self.__is_streaming = True
 
@@ -43,14 +43,14 @@ class ClientStreaming:
 
         cv2.destroyAllWindows()
 
-    def establish_p2p_connection(self, init_msg: str) -> None:
+    def get_id(self) -> int:
         # Create socket between first peer to server
         self.__peer_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         # Add NTT record by sending packet to the server
-        self.__peer_socket.sendto(init_msg.encode(), (self.__host, self.__port))
+        self.__peer_socket.sendto(b'Sharing', (self.__host, self.__port))
 
-        print(f'send to the server {init_msg}')
+        print('send to the server \'sharing\'')
 
         # Get the stream ID
         remote_peer_tuple_bytes, server_addr = self.__peer_socket.recvfrom(1024)
@@ -58,6 +58,9 @@ class ClientStreaming:
 
         print(f'Your id is: {self.__id}')
 
+        return self.__id
+
+    def establish_p2p_connection(self) -> None:
         # Get the second peer's external host and port
         remote_peer_tuple_bytes, server_addr = self.__peer_socket.recvfrom(1024)
         self.__remote_peer_tuple = eval(remote_peer_tuple_bytes.decode())  # (host, port)
